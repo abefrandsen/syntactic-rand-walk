@@ -15,7 +15,7 @@ def file_chunker(fname, size):
     for chunk in data:
         yield chunk.values
 
-def train_with_structure_counts(triple_counts, embeddings, tensor_rank, n_triple_counts, on_disk=True, tensor_init=None, c_init=None,train_embeddings=False, embedding_prior = 0, word_constants=False, word_c_init=None, symmetric=True,V_init=None,save_path=None, pmi=False,epochs=1,batch_size=50000,learning_rate=1e-3,loss_path=None):
+def train_with_wordpair_counts(triple_counts, embeddings, tensor_rank, n_triple_counts, on_disk=True, tensor_init=None, c_init=None,train_embeddings=False, embedding_prior = 0, word_constants=False, word_c_init=None, symmetric=True,V_init=None,save_path=None, pmi=False,epochs=1,batch_size=50000,learning_rate=1e-3,loss_path=None):
     """
     Given a set of trained word embeddings as well as a dictionary of counts of triples of words,
     train a low-rank tensor on these triple counts according to the syntactic rand-walk model.
@@ -144,8 +144,8 @@ def train_with_structure_counts(triple_counts, embeddings, tensor_rank, n_triple
 
         # create the tensorflow optimizer
         global_step = tf.Variable(0,name='global_step', trainable=False)
-        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate) # traditionally have chosen learning_rate=1e-3
-        #optimizer = tf.train.AdagradOptimizer(1e-3)
+        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate) # traditionally have chosen learning_rate=1e-3, but try changing in later epochs
+        #optimizer = tf.train.AdagradOptimizer(learning_rate)
         train_op = optimizer.minimize(loss, global_step)
             
         sess.run(tf.global_variables_initializer())
@@ -233,28 +233,23 @@ def main():
     word_constants=True
     on_disk=True
     train_embeddings=False
-    triple_counts = "/usr/xtmp/abef/triple_counts/triple_counts_an_shuf.txt"
+    triple_counts = "~/triple_counts/triple_counts_an_shuf.txt"
     n_triple_counts = 233135511 # dep_vo
     #n_triple_counts = 428452249 # dep_an
     tensor_rank = 1000
     embedding_prior=0
     init_file = None
     V=None
-    
     #path_to_vects = "../datasets/rw_vectors.txt"
-    #save_path = "/usr/xtmp/abef/learned_params_dep_an_rw.npz"
-    #loss_path = "/usr/xtmp/abef/loss_vals_dep_an_rw.txt"
+    #save_path = "~/learned_params_dep_an_rw.npz"
+    #loss_path = "~/loss_vals_dep_an_rw.txt"
     epochs=1
     batch_size=50000
     learning_rate=1e-3
+
+    # below, an example of running this script from the command line
     """
-    python train_from_triplecounts.py --counts_file=/usr/xtmp/abef/triple_counts/triple_counts_vo_shuf.txt --vector_file=../datasets/glove_vectors_rescaled.txt --init_file=/usr/xtmp/abef/learned_params_dep_vo_glove_1000.npz --save_path=/usr/xtmp/abef/learned_params_dep_vo_glove_1000.npz --loss_path=/usr/xtmp/abef/loss_vals_dep_vo_glove_1000.txt --epochs=2 --learning_rate=4e-4 --tensor_rank=1000
-    """
-    """
-    python train_from_triplecounts.py --counts_file=/usr/xtmp/abef/triple_counts/triple_counts_vo_shuf.txt --vector_file=../datasets/cbow_vectors_rescaled.txt --init_file=/usr/xtmp/abef/learned_params_dep_vo_cbow_1000.npz --save_path=/usr/xtmp/abef/learned_params_dep_vo_cbow_1000.npz --loss_path=/usr/xtmp/abef/loss_vals_dep_vo_cbow_1000.txt --epochs=2 --learning_rate=4e-4 --tensor_rank=1000
-    """
-    """
-    python train_from_triplecounts.py --counts_file=/usr/xtmp/abef/triple_counts/triple_counts_vo_shuf.txt --vector_file=../datasets/rw_vectors.txt --init_file=/usr/xtmp/abef/learned_params_dep_vo_rw_1000.npz --save_path=/usr/xtmp/abef/learned_params_dep_vo_rw_1000.npz --loss_path=/usr/xtmp/abef/loss_vals_dep_vo_rw_1000.txt --epochs=2 --learning_rate=4e-4 --tensor_rank=1000
+python train_from_triplecounts.py --counts_file=~/triple_counts/triple_counts_vo_shuf.txt --vector_file=../datasets/glove_vectors_rescaled.txt --init_file=~/learned_params_dep_vo_glove_1000.npz --save_path=~/learned_params_dep_vo_glove_1000.npz --loss_path=~/loss_vals_dep_vo_glove_1000.txt --epochs=2 --learning_rate=4e-4 --tensor_rank=1000
     """
     for arg in sys.argv:
         if arg.startswith('--counts_file='): # path to file containing the triple counts
@@ -294,9 +289,8 @@ def main():
         word_C_init=init_vals["arr_2"]
     if train_embeddings:
         V = np.loadtxt(init_vectors)
-        #V = init_vals["arr_3"]
         
-    vals = train_with_structure_counts(triple_counts, vectors, tensor_rank, n_triple_counts, on_disk=on_disk,
+    vals = train_with_wordpair_counts(triple_counts, vectors, tensor_rank, n_triple_counts, on_disk=on_disk,
                                        tensor_init=tensor_init, c_init=C_init, word_c_init=word_C_init, 
                                        train_embeddings=train_embeddings,word_constants=word_constants,
                                        symmetric=symmetric,V_init=V,save_path=save_path,pmi=PMI,epochs=epochs,

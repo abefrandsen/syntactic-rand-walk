@@ -1,6 +1,6 @@
 """
 This file contains rewrites of certain classes and functions in gensim related to
-iterating through the wikipedia corpus. The changes made allow you to iterated
+iterating through the wikipedia corpus. The changes made allow you to iterate
 through each article sentence by sentence, rather than word by word. The main
 class here is WikiCorpusBySentence, which has the same interface as WikiCorpus in
 gensim.corpora.wikicorpus. 
@@ -17,7 +17,6 @@ from xml.etree.cElementTree import \
     iterparse  # LXML isn't faster, so let's go with the built-in solution
 from nltk import tokenize as nltk_tokenize
 from gensim import utils
-# cannot import whole gensim.corpora, because that imports wikicorpus...
 from gensim.corpora.dictionary import Dictionary
 from gensim.corpora.textcorpus import TextCorpus
 from gensim.corpora.wikicorpus import *

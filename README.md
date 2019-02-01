@@ -27,7 +27,7 @@ After running the batch job, we have potentially many python pickle files contai
 ```
 The first line above means that the adjective-noun pair (or verb-object pair) corresponding to words 727 and 2111 occurs in the same context as word 9799 just once in the entire corpus. 
 
-Finally, it is recommended to shuffle the lines of the triple counts files, so that the training algorithm draws random batches of co-occurrence counts. This can be done on linux from the terminal using the 'shuf' command.
+Finally, it is recommended to shuffle the lines of the triple counts files, so that the training algorithm draws random batches of co-occurrence counts. This can be done on linux from the terminal using the 'shuf' command. Note also that the training algorithm can be optionally supplied with the number of total triple counts, so that it can report what percentage of the data have been processed. To get the number of triple counts, just count the lines of the file, which on linux can be done from the terminal using 'wc -l'. 
 
 
 ## Training the model
@@ -41,4 +41,6 @@ We train the model using the adam optimizer in the TensorFlow framework. The fil
 The script 'train_from_triplecounts.py' will run the training algorithm on the specified inputs, and will save the learned model parameters frequently, so that the script can be terminated without losing everything (and can be resumed later without too much difficulty). You can also have it save the value of the loss function over time in order to monitor the progress of the training.
 
 ## Using and evaluating the model
-Coming soon!
+The first and most basic use of the trained syntactic rand-walk model is to obtain an embedding for a syntactically-related pair of words. The jupyter notebook 'model_demo.ipynb' shows how to do this, and gives examples of similarity queries for various adjective-noun phrases.
+
+Our paper also applied the model to a phrase similarity task. The jupyter notebook 'phrase_similarity.ipynb' demonstrates how we performed this evaluation task. 
